@@ -24,9 +24,14 @@
       return r.text();
     }).then(text => {
       document.title = `${text.match(/^#\s+(.+)$/m)?.[1] || "文章"} · MingJunYi1024`;
-      marked.setOptions({ breaks: true, gfm: true, highlight: code => hljs.highlightAuto(code).value });
-      article.innerHTML = marked.parse(text);
-      article.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
+      if (window.marked?.parse) {
+        marked.setOptions({ breaks: true, gfm: true });
+        article.innerHTML = marked.parse(text);
+        if (window.hljs) article.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
+      } else {
+        const escaped = text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        article.innerHTML = `<pre class="raw-markdown">${escaped}</pre>`;
+      }
     }).catch(() => article.innerHTML = "<h1>文章加载失败</h1><p>请返回首页重试。</p>");
   </script>
   <script>
