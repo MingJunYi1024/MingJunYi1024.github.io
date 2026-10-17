@@ -19,20 +19,17 @@
     const article = document.querySelector("#article");
     const allowed = file && file.endsWith(".txt") && /^[a-z0-9-]+\.txt$/i.test(file);
     if (!allowed) article.innerHTML = "<h1>文章不存在</h1><p><a href='index.html'>返回首页</a></p>";
-    else fetch(file).then(r => {
-      if (!r.ok) throw new Error("文章加载失败");
-      return r.text();
-    }).then(text => {
-      document.title = `${text.match(/^#\s+(.+)$/m)?.[1] || "文章"} · MingJunYi1024`;
-      if (window.marked?.parse) {
-        marked.setOptions({ breaks: true, gfm: true });
-        article.innerHTML = marked.parse(text);
-        if (window.hljs) article.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
-      } else {
-        const escaped = text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        article.innerHTML = `<pre class="raw-markdown">${escaped}</pre>`;
-      }
-    }).catch(() => article.innerHTML = "<h1>文章加载失败</h1><p>请返回首页重试。</p>");
+    else {
+      const titles = {
+        "2026-09.txt": "2026.9 - 做题记录与方法总结",
+        "2026-08.txt": "2026.8 - 做题记录与方法总结",
+        "2026-07.txt": "2026.7 - 做题记录与方法总结",
+        "2024-11.txt": "2024.11 - 做题记录与方法总结",
+        "2024-08.txt": "2024.8 - 做题记录与方法总结"
+      };
+      document.title = `${titles[file] || "文章"} · MingJunYi1024`;
+      article.innerHTML = `<iframe class="reader" title="${titles[file] || "文章"}" src="${file}"></iframe>`;
+    }
   </script>
   <script>
     window.MathJax = { tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]] }, svg: { fontCache: "global" } };
