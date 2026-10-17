@@ -1,0 +1,245 @@
+> <font color = red> “世界上只有一种真正的英雄主义，那就是在认清生活的真相后依然热爱生活。” </font>
+
+# 2026.7 - 做题记录与方法总结 
+
+复健开始！
+
+## 2026.7.3
+
+从耻辱处崛起！
+
+### [[NOIP2024] 遗失的赋值](https://www.luogu.com.cn/problem/P11362) 
+
+简单组合题，但是读题很恶心。
+
+首先，如果出现同个位置有两个不同的限制，自然无解，其他的情况均有解。
+
+然后考虑正难则反，两个限制之间，什么情况会无解呢？
+
+考虑从 $A \rightarrow \ldots \rightarrow B$，从 $A$ 开始，一步一步写限制，直到限制 $B$,然后让 $B$ 的初始限制与附加限制矛盾
+
+这个时候就是错误方案，去掉就是答案。
+
+考虑最前面和最后面，限制随便加，不受影响。
+
+记得无论什么时候，都要取模！！！
+
+code:
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+int rd() {
+	int x = 0, w = 1;
+	char ch = 0;
+	while (ch < '0' || ch > '9') {
+		if (ch == '-') w = -1;
+		ch = getchar();
+	}
+	while (ch >= '0' && ch <= '9') {
+		x = x * 10 + (ch - '0');
+		ch = getchar();
+	}
+	return x * w;
+}
+void wt(int x) {
+	static int sta[35];
+	int f = 1;
+	if(x < 0) f = -1,x *= f;
+	int top = 0;
+	do {
+		sta[top++] = x % 10, x /= 10;
+	} while (x);
+	if(f == -1) putchar('-');
+	while (top) putchar(sta[--top] + 48);
+}
+const int mod = 1e9 + 7;
+int qpow(int x,int k) {
+    int res = 1;
+    if(k <= 0) return 1;
+    while(k) {
+        if(k & 1) (res *= x) %= mod;
+        (x *= x) %= mod;
+        k >>= 1;
+    }
+    return res;
+}
+
+const int N = 1e5+5;
+int n,m,v,c[N],d[N];
+array<int,2> k[N];
+void work(){
+    n = rd(),m = rd(),v = rd();
+    int res = 1;
+    for(int i = 1;i<=m;i++) c[i] = rd(),d[i] = rd();
+    for(int i = 1;i<=m;i++) k[i][0] = c[i],k[i][1] = d[i];
+    sort(k + 1,k + m + 1);
+    for(int i = 1;i<=m;i++) c[i] = k[i][0],d[i] = k[i][1];
+    (res *= qpow(v * v % mod,c[1] - 1)) %= mod; 
+    for(int i = 1;i<m;i++) {
+        int j = i + 1,ans = 1;
+        if(c[i] == c[j]) {
+            if(d[i] ^ d[j]) {res = 0;break;}
+            continue;
+        }
+        (ans = qpow(v * v % mod,(c[j] - c[i])) % mod - qpow(v,c[j] - c[i]-1) * (v - 1) % mod + mod) %= mod;
+        (ans += mod) %= mod;
+        ((res *= ans) += mod) %= mod ;
+    }
+    (res *= qpow(v * v % mod,n - c[m])) %= mod;
+
+    wt((res + mod) % mod),putchar('\n'); 
+}
+
+signed main() {
+    int t = rd();
+    while(t--) work();
+	return 0;
+}
+```
+
+### [[ICPC 2020 Nanjing R] Monster Hunter](https://www.luogu.com.cn/problem/P9634)
+
+树上背包题，自然考虑每个魔法标记的影响
+
+如果没有标记，则每一个结点（除根）都有父节点，贡献计算两次，根节点则只有一次。
+
+那么先算出每个节点可能会给答案带来的贡献，设 $dp_{i,j,0/1}$ 为在 $i$ 节点，用 $j$ 次标记，$0/1$ 为该节点是否打标记，比不打任何标记减少的贡献。
+
+那么有，
+$$
+dp_{x,0,0} = 0 \ \ \text{原贡献不变} \\ 
+dp_{x,1,1} = sum[x] \ \ \text{去掉自己的贡献} \\
+$$
+
+因为标记最大可以到 $n$，所以枚举必须小，故记录每个子树的 $siz$，
+
+然后顺序枚举子树，做父子树融合！！！
+
+```cpp
+for(int i = head[x];~i;i = nxt[i]){
+	int y = to[i];//顺序访问
+	dfs(y,x);
+	for(int p = siz[x];p >= 0;p--)
+		for(int q = siz[y];q >= 0;q--)
+			dp[x][p + q][0] = max(dp[x][p + q][0],dp[x][p][0] + max(dp[y][q][0],dp[y][q][1])),
+			dp[x][p + q][1] = max(dp[x][p + q][1],dp[x][p][1] + max(dp[y][q][0],dp[y][q][1] - hp[y]));
+	siz[x] += siz[y];
+}
+```
+
+如果本节点不标记，则与 $($ 子节点是否标记 $+$ 本节点之前融合树 $)$ 取 $\max$ 
+
+如果本节点标记，则与 $($ 子节点是否标记($*$ 标记则减去子节点 $hp$) $+$ 本节点之前融合树 $)$ 取 $\max$ 
+
+关于 $*$ 处，因为父节点去除（在 $dp_{x,1,1}$ 中出现），所以子节点的贡献本来有两份，父节点去除只有一份了，再去除之后降低一个 $hp$ 的贡献。
+
+code:
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+int rd() {
+	int x = 0, w = 1;
+	char ch = 0;
+	while (ch < '0' || ch > '9') {
+		if (ch == '-') w = -1;
+		ch = getchar();
+	}
+	while (ch >= '0' && ch <= '9') {
+		x = x * 10 + (ch - '0');
+		ch = getchar();
+	}
+	return x * w;
+}
+void wt(int x) {
+	static int sta[35];
+	int f = 1;
+	if(x < 0) f = -1,x *= f;
+	int top = 0;
+	do {
+		sta[top++] = x % 10, x /= 10;
+	} while (x);
+	if(f == -1) putchar('-');
+	while (top) putchar(sta[--top] + 48);
+}
+const int N = 2e3+5,inf = 1e18;
+int dp[N][N][2]; // 0 -> 未取消 1 -> 取消 计算差量
+int head[N],nxt[N],to[N],cnt;
+int hp[N],sum[N],res[N],siz[N];
+void init(int n) {for(int i = 0;i<=n;i++) head[i] = -1;cnt = 0;}
+void add(int u,int v) {
+	nxt[cnt] = head[u];
+	to[cnt] = v;
+	head[u] = cnt++;
+}
+
+void dfs(int x,int fa){
+	siz[x] = 1;
+	dp[x][0][0] = 0;
+	dp[x][1][1] = sum[x];
+	for(int i = head[x];~i;i = nxt[i]){
+		int y = to[i];//顺序访问
+		dfs(y,x);
+		for(int p = siz[x];p >= 0;p--)
+			for(int q = siz[y];q >= 0;q--)
+				dp[x][p + q][0] = max(dp[x][p + q][0],dp[x][p][0] + max(dp[y][q][0],dp[y][q][1])),
+				dp[x][p + q][1] = max(dp[x][p + q][1],dp[x][p][1] + max(dp[y][q][0],dp[y][q][1] - hp[y]));
+		siz[x] += siz[y];
+	}
+}
+
+void work(){
+	memset(res,0,sizeof(res));
+	int n = rd();
+	init(n);
+	for(int i = 2;i<=n;i++) {
+		int x = rd();
+		add(x,i);//单向边
+	}
+	for(int i = 1;i<=n;i++) hp[i] = rd();
+	for(int i = 1;i<=n;i++) {
+		sum[i] = hp[i];
+		for(int j = head[i];~j;j = nxt[j]){
+			int y = to[j];
+			sum[i] += hp[y];
+		}
+		res[0] += sum[i];//start
+		if(i ^ 1) sum[i] += hp[i];
+	}
+	for(int i = 1;i<=n;i++)
+		for(int j = 0;j<=n;j++)
+			dp[i][j][1] = dp[i][j][0] = -inf;
+	dfs(1,0);
+	for(int i = 1;i<=n;i++)
+		res[i] = res[0] - max(dp[1][i][0],dp[1][i][1]);
+	for(int i = 0;i<n;i++) wt(res[i]),putchar(' ');
+	wt(res[n]),putchar('\n');
+}
+
+signed main() {
+	int T = rd();
+	while(T--) work();
+	return 0;
+}
+```
+
+## 2026.8.3
+
+回老家&看番/轻小说/漫画
+
+太多事情导致没写题（忏悔忏悔）
+
+下面会更新我比较喜欢的东西（暂定）。
+
+《正相反的你和我》 目前最优质的恋爱！
+
+《邻家天使》 看看小说和漫画，吃闪！
+
+《二人巴士》 简单的乡村，简单的懵懂，甜甜的生活！
+
+《灰宫学姐可怕但又很可爱》 反差这一块做的很好。
+
+《同班同学是重返青春的前妻》 斗嘴这块很真，短篇恋爱喜剧恰到好处
+
