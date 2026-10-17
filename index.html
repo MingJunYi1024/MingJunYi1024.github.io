@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MingJunYi1024 的学习笔记</title>
+  <meta name="description" content="算法、数学与学习记录">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">MingJunYi1024 · Notes</p>
+      <h1>学习笔记与博客</h1>
+      <p class="intro">记录算法、数学、竞赛和一路走来的思考。</p>
+    </header>
+    <section>
+      <div class="section-heading">
+        <h2>全部文章</h2>
+        <span id="count" class="muted"></span>
+      </div>
+      <div id="posts" class="post-list"></div>
+    </section>
+    <footer>Hosted with GitHub Pages · <a href="https://github.com/MingJunYi1024" rel="noreferrer">GitHub</a></footer>
+  </main>
+  <script>
+    const posts = [
+      ["2026.9 - 做题记录与方法总结.22880407.md", "2026.9 · 做题记录与方法总结", "竞赛记录、题解与方法复盘"],
+      ["2026.8 - 做题记录与方法总结.22179820.md", "2026.8 · 做题记录与方法总结", "竞赛记录、题解与方法复盘"],
+      ["2026.7 - 做题记录与方法总结.21062338.md", "2026.7 · 做题记录与方法总结", "竞赛记录、题解与方法复盘"],
+      ["2024.11 - 做题记录与方法总结.18541558.md", "2024.11 · 做题记录与方法总结", "竞赛记录、题解与方法复盘"],
+      ["2024.8 - 做题记录与方法总结.18337561.md", "2024.8 · 做题记录与方法总结", "竞赛记录、题解与方法复盘"],
+      ["初等数论重要定理&推论 ——学习笔记.18262707.md", "初等数论重要定理与推论", "数学学习笔记"],
+      ["概率与计算 ----学习笔记.18278648.md", "概率与计算", "数学学习笔记"],
+      ["矩阵写法.18448118.md", "矩阵写法", "算法与数学工具"],
+      ["模板大集合.18293614.md", "模板大集合", "竞赛代码与常用模板"],
+      ["经验之谈.md", "经验之谈", "算法学习中的思考与总结"],
+      ["炫酷变换魔术.18549522.md", "炫酷变换魔术", "技巧记录"],
+      ["CSP-S 2024 寄记.18504552.md", "CSP-S 2024 记录", "竞赛记录"],
+      ["高考游记.20191511.md", "高考游记", "个人记录"]
+    ];
+    document.querySelector("#count").textContent = `${posts.length} 篇`;
+    document.querySelector("#posts").innerHTML = posts.map(([file, title, desc]) => `
+      <a class="post" href="post.html?file=${encodeURIComponent(file)}">
+        <div><h3>${title}</h3><p>${desc}</p></div><span class="arrow">→</span>
+      </a>`).join("");
+  </script>
+</body>
+</html>
